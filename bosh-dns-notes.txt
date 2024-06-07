@@ -1,0 +1,25 @@
+#
+# Usage for boshdns.py
+# curl https://boshdns.myapp.cf/diego-cell
+#
+#   will return a list of diego-cell IP addresses
+#   see the code for default deployment, network, etc
+# 
+# https://bosh.io/docs/dns/
+# query bosh-dns for addresses for specific services and deployments
+#
+# host q-s4.diego-cell.default.cf.bosh
+#              |                   |            |  |        |
+#              |                   |            |  |        +-- "bosh" top-level domain
+#              |                   |            |  +-- "cf" deployment, or "*"
+#              |                   |            +-- "default" network, or "*"
+#              |                   +-- "diego-cell" instance group, or "*"
+#              +-- query flags
+# query flags; <S> is string, <N> is numeric
+# - a<N> - availability zone, N is numeric, omit for all
+# - i<N> - instance ID (index)
+# - m<S> - numerical GUID (dashes included)
+# - n<S> - network numerical ID
+# - s<N> - healthiness (0=default, 1=unhealthy, 3=healthy, 4=all)
+# - y<N> - syncronous healthcheck ((0=dont get healthiness, 1=health-check)
+# - g<N> - group (internal) N is the global instance group id
