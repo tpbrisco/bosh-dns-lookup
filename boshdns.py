@@ -23,7 +23,12 @@ app = FastAPI(
 
 def get_dns_rr(name: str):
     '''get_dns_rr(hostname) - get 'A' records and return an array of them'''
-    ans = resolver.resolve(name, 'A')
+    try:
+        ans = resolver.resolve(name, 'A')
+    except dns.resolver.NXDOMAIN as e:
+        # nothing to do, just no data is available
+        # would be better to return "not found", but for simplicity ...
+        return list()
     resp = list()
     for r in ans:
         resp.append(r.to_text())
