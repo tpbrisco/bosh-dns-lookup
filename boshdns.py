@@ -35,7 +35,7 @@ def get_dns_rr(name: str):
     return resp
 
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def main():
     '''redirect to swagger interface, could be /redoc for ReDoc format'''
     return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
