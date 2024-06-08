@@ -38,9 +38,9 @@ class BoshDnsAns(BaseModel):
     reason: str | None = None
 
 
-# simple dns lookup - return data and/or error code
 def get_dns_rr(name: str) -> DnsAns:
-    '''get_dns_rr(hostname) - get 'A' records and return an array of them'''
+    '''get_dns_rr(hostname) - get 'A' records and return an array of them.
+    Any error message from the resolver is returned'''
     rr = DnsAns(reason=None, addresses=list())
     try:
         ans = resolver.resolve(name, 'A')
@@ -57,20 +57,19 @@ def get_dns_rr(name: str) -> DnsAns:
     return rr
 
 
-# just redirect to swagger UI if no query
 @app.get("/", include_in_schema=False)
 def main():
     '''redirect to swagger interface, could be /redoc for ReDoc format'''
     return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
 
 
-# DNS lookup - use BOSH DNS format if we're deployed in cloud foundry,
-# otherwise return a standard DNS lookup (for testing, dev, etc)
 @app.get("/lookup/{instance_group}")
 def dns_lookup(instance_group: str,
                query_flags: str = "s4",
                deployment: str = '*',
                network: str = "*") -> BoshDnsAns:
+    '''dns_lookup - use BOSH DNS format if we're deployed in cloud foundry,
+    otherwise return a standard DNS lookup (test test, dev, etc)'''
     bd_ans = BoshDnsAns(
         instance_group=instance_group,
         query_flags=query_flags,
@@ -83,7 +82,6 @@ def dns_lookup(instance_group: str,
         # if we're in CF, formulate a BOSH DNS query
         bd_ans.query = f"q-{query_flags}.{instance_group}.{network}.{deployment}.bosh"
 
-    # addresses = get_dns_rr(name)
     ans = get_dns_rr(bd_ans.query)
     bd_ans.addresses = ans.addresses.copy()
     bd_ans.reason = ans.reason
