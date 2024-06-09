@@ -35,3 +35,10 @@ result=$(run_curl "lookup/diego-cell", "results/diego-cell.json")
 check_code "returns 200" "200" "$result"
 len=$(get_results_len ".addresses" "results/diego-cell.json")
 are_gt "more than 0 addresses" 0 $len
+
+# empty deployment name (but not an error)
+logn "check non-existant deployment "
+result=$(run_curl "lookup/nothere", "results/notthere.json")
+check_code "returns 200" "200" "$result"
+len=$(get_results_len ".addresses" "results/notthere.json")
+are_eq "should be 0 addresses" 0 $len

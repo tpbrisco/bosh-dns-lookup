@@ -34,6 +34,17 @@ function log () {
 }
 
 # functional support
+function are_eq() {
+    msg="$1"
+    want="$2"
+    have="$3"
+    if [[ "$have" -eq "$want" ]]; then
+	log   "$msg ok"
+    else
+	err_log "$msg $have is not eq $want"
+    fi
+}
+
 function are_gt () {
     msg="$1"
     want="$2"
