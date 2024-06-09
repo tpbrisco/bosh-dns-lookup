@@ -3,30 +3,28 @@ set -eou pipefail
 #
 # Tests for development environment -- assume that this is running on a local
 # machine (and thus BOSH isnt available, just the regular DNS lookup).
-# It is assumed that this is running relative to the git root for the repo.
 
-[[ ! -d tests ]] && echo "Please run from the root repo" && exit 1
-[[ ! -f boshdns.py ]] && echo "Please run from the root repo" && exit 1
+URL_BASE="http://localhost:8000"
+if [ "${URL_BASE: -1}" == "/" ]; then
+    # we need to remove trailing "/"
+    URL_BASE=${URL_BASE:0:-1}
+fi
 
-[[ ! -d results ]] && mkdir results
+# load common definitions
+if [[ ! -f $(dirname "$0")/common.sh ]]; then
+    echo "cannot find common.sh"
+    exit 1
+fi
+source $(dirname "$0")/common.sh
 
-# simple global variable setup
-DEBUG=${DEBUG:-''}
-FAST_PID=''
-
-# support applications needed
+# ensure a local copy of boshdns is runnable
 set +e
 FASTAPI=$(type -p fastapi)
 [[ -z "$FASTAPI" ]] && echo "Expect to find 'fastapi' available" && exit 1
 set -e
-CURL=$(type -p curl)
-set +e
-[[ -z "$CURL" ]] && echo "Need curl to run tests" && exit 1
-set -e
-JQ=$(type -p jq)
-set +e
-[[ -z "$JQ" ]] && echo "Need jq to run tests" && exit 1
-set -e
+
+# we'll need to track the PID to ensure we can shut it down again
+FAST_PID=''
 
 # support
 function clean_shut() {
@@ -39,71 +37,6 @@ function clean_shut() {
 }
 trap clean_shut EXIT
 
-# utilities
-function debug_log () {
-    if [[ -n "$DEBUG" ]]; then
-	echo "$1"
-    fi
-}
-
-function err_log () {
-    echo -e "error: $1"
-    exit 1
-}
-
-function logn () {
-    echo -en "$1"
-}
-
-function log () {
-    echo -e "$1"
-}
-
-# functional support
-function are_gt () {
-    msg="$1"
-    want="$2"
-    have="$3"
-    if [[ "$have" -ge "$want" ]]; then
-	log "$msg ok"
-    else
-	err_log "$msg, $have is not gt $want"
-    fi
-}
-
-function get_results () {
-    FIELD="$1"
-    FILE="$2"
-    $JQ -Mr "$FIELD" "$FILE"
-}
-
-function get_results_len () {
-    FIELD="$1"
-    FILE="$2"
-    $JQ -Mr "$FIELD |length" "$FILE"
-}
-
-function run_curl () {
-    # run curl with flags, return exit code
-    # data is
-    path="$1"
-    results="$2"
-    set +e
-    h_code=$($CURL -Ssw '%{http_code}\n' "http://localhost:8000/$path" -o "$results")
-    set -e
-    echo "$h_code"
-}
-
-function check_code () {
-    # test result codes, and send message about it
-    msg="$1"
-    want="$2"
-    got="$3"
-    if [[ "$want" != "$got" ]]; then
-	err_log "$msg failed, $want != $got"
-    fi
-    log "$msg ok"
-}
 
 # start boshdns process
 FASTLOG="/tmp/boshdns-runlog.txt"
