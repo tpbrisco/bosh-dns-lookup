@@ -23,12 +23,14 @@ app = FastAPI(
 
 # get_dns_rr return - include data and/or error message
 class DnsAns(BaseModel):
+    '''Response for DNS Lookups'''
     reason: str | None
     addresses: list
 
 
 # main entry point data returned
 class BoshDnsAns(BaseModel):
+    '''BOSH DNS Lookup Response, with parameters and messages'''
     query: str | None = None
     instance_group: str
     query_flags: str
@@ -39,8 +41,8 @@ class BoshDnsAns(BaseModel):
 
 
 def get_dns_rr(name: str) -> DnsAns:
-    '''get_dns_rr(hostname) - get 'A' records and return an array of them.
-    Any error message from the resolver is returned'''
+    '''get_dns_rr(hostname) - get 'A' records and return an DnsAns
+    including any reason code'''
     rr = DnsAns(reason=None, addresses=list())
     try:
         ans = resolver.resolve(name, 'A')
