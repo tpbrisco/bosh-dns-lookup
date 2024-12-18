@@ -4,7 +4,7 @@ import os
 import dns.resolver
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
-import starlette.status as status
+from starlette import status
 from pydantic import BaseModel
 
 # intialize DNS resolver
@@ -43,7 +43,7 @@ class BoshDnsAns(BaseModel):
 def get_dns_rr(name: str) -> DnsAns:
     '''get_dns_rr(hostname) - get 'A' records and return an DnsAns
     including any reason code'''
-    rr = DnsAns(reason=None, addresses=list())
+    rr = DnsAns(reason=None, addresses=[])
     try:
         ans = resolver.resolve(name, 'A')
     except dns.resolver.NXDOMAIN as e:
@@ -77,7 +77,7 @@ def dns_lookup(instance_group: str,
         query_flags=query_flags,
         deployment=deployment,
         network=network,
-        addresses=list())
+        addresses=[])
     # non-CF behavior is to just look up a hostname
     bd_ans.query = instance_group
     if AM_CF_DEPLOYED:
