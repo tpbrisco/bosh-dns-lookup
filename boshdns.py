@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+'''Lookup BOSH DNS names'''
 import os
 import dns.resolver
 from fastapi import FastAPI
@@ -7,13 +7,13 @@ from fastapi.responses import RedirectResponse
 import starlette.status as status
 from pydantic import BaseModel
 
+# intialize DNS resolver
 resolver = dns.resolver.Resolver()
 
 # determine dns lookup behavior
-am_cf_deployed = False
-if os.getenv('VCAP_APPLICATION'):
-    am_cf_deployed = True
+AM_CF_DEPLOYED = bool(os.getenv('VCAP_APPLICATION'))
 
+# initialize FastAPI app
 app = FastAPI(
     title='boshdns',
     description='Do BOSH DNS Lookups',
@@ -23,14 +23,14 @@ app = FastAPI(
 
 # get_dns_rr return - include data and/or error message
 class DnsAns(BaseModel):
-    '''Response for DNS Lookups'''
+    '''Response model for DNS Lookups'''
     reason: str | None
     addresses: list
 
 
 # main entry point data returned
 class BoshDnsAns(BaseModel):
-    '''BOSH DNS Lookup Response, with parameters and messages'''
+    '''BOSH DNS Lookup model, with parameters and messages'''
     query: str | None = None
     instance_group: str
     query_flags: str
@@ -80,7 +80,7 @@ def dns_lookup(instance_group: str,
         addresses=list())
     # non-CF behavior is to just look up a hostname
     bd_ans.query = instance_group
-    if am_cf_deployed:
+    if AM_CF_DEPLOYED:
         # if we're in CF, formulate a BOSH DNS query
         bd_ans.query = f"q-{query_flags}.{instance_group}.{network}.{deployment}.bosh"
 
