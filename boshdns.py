@@ -54,6 +54,10 @@ def get_dns_rr(name: str) -> DnsAns:
     except dns.resolver.NoNameservers as e:
         rr.reason = str(e)
         return rr
+    except dns.resolver.NoAnswer as e:
+        # response, but no answer
+        rr.reason = str(e)
+        return rr
     for r in ans:
         rr.addresses.append(r.to_text())
     return rr
