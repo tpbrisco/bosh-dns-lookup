@@ -50,17 +50,17 @@ def get_dns_rr(name: str) -> DnsAns:
         # nothing to do, just no data is available
         # would be better to return "not found", but for simplicity ...
         rr.reason = str(e)
-        return rr
+        return DnsAns.model_validate(rr, strict=True)
     except dns.resolver.NoNameservers as e:
         rr.reason = str(e)
-        return rr
+        return DnsAns.model_validatet(rr, strict=True)
     except dns.resolver.NoAnswer as e:
         # response, but no answer
         rr.reason = str(e)
-        return rr
+        return DnsAns.model_validate(rr, strict=True)
     for r in ans:
         rr.addresses.append(r.to_text())
-    return rr
+    return DnsAns.model_validate(rr, strict=True)
 
 
 @app.get("/", include_in_schema=False)
@@ -91,4 +91,4 @@ def dns_lookup(instance_group: str,
     ans = get_dns_rr(bd_ans.query)
     bd_ans.addresses = ans.addresses.copy()
     bd_ans.reason = ans.reason
-    return bd_ans
+    return BoshDnsAns.model_validate(bd_ans, strict=True)
