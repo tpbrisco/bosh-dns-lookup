@@ -15,12 +15,12 @@ indicates which VMs, and can be limited by specifying network,
 and specific deployments.
 
 The query_flag can further limit queries to
-- s<N:int> - healthiness (0=default, 1=unhealthy, 3=healthy, 4=all)
-- a<N:int> - availability zone
-- i<N:int> - instance ID (aka index number)
-- m<G:guid> - numerical guid (dashes included)
-- y<N:int> - synchronous healthcheck (0=get retrieve, 1=health-check)
-- g<N:int> - group N is the global instance group id
+- `-s<N:int>` - healthiness (0=default, 1=unhealthy, 3=healthy, 4=all)
+- `-a<N:int>` - availability zone
+- `-i<N:int>` - instance ID (aka index number)
+- `-m<G:guid>` - numerical guid (dashes included)
+- `-y<N:int>` - synchronous healthcheck (0=get retrieve, 1=health-check)
+- `-g<N:int>` - group N is the global instance group id
 
 ## Examples
 
